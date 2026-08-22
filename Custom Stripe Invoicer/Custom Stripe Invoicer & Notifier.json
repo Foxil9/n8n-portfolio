@@ -1,0 +1,417 @@
+{
+  "name": "Custom Stripe Invoicer & Notifier",
+  "nodes": [
+    {
+      "parameters": {
+        "events": [
+          "checkout.session.completed"
+        ]
+      },
+      "type": "n8n-nodes-base.stripeTrigger",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        208
+      ],
+      "id": "eb5de664-aaec-4319-b362-33d3599b23de",
+      "name": "pullPaymetnInfo",
+      "webhookId": "1e3ea886-580b-45ed-8ec4-a4491683e605",
+      "credentials": {
+        "stripeApi": {
+          "id": "5Jt4kav7xqAB5L4W",
+          "name": "Stripe account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e891fcaf-9b24-4e90-a26f-b99d824b36b6",
+              "leftValue": "={{ $json.data.object.payment_status === \"paid\" || $json.data.object.payment_status === \"no_payment_required\" }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -400,
+        208
+      ],
+      "id": "6f31e31c-cff0-42a0-9740-e8a4afb403b1",
+      "name": "checkPaymentStatus"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.stripe.com/v1/checkout/sessions/{{ $json.data.object.id }}/line_items",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -176,
+        112
+      ],
+      "id": "abface29-45ce-4bb1-9025-1efee0fec609",
+      "name": "getOrderDetails",
+      "credentials": {
+        "stripeApi": {
+          "id": "5Jt4kav7xqAB5L4W",
+          "name": "Stripe account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "10F9PgTgwOBAX_xD57yxWOc-_9m3I5iHvHour05_df6Q",
+          "mode": "list",
+          "cachedResultName": "Orders Details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10F9PgTgwOBAX_xD57yxWOc-_9m3I5iHvHour05_df6Q/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Orders",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10F9PgTgwOBAX_xD57yxWOc-_9m3I5iHvHour05_df6Q/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $now.format('yyyy-MM-d - HH:mm:ss') }}",
+            "Customer Name": "={{ $('checkPaymentStatus').item.json.data.object.customer_details.name }}",
+            "Item": "={{ $json.data[0].description }}",
+            "Amount": "={{ $json.data[0].amount_total }}",
+            "Currency": "={{ $json.data[0].currency }}",
+            "Session ID": "={{ $('checkPaymentStatus').item.json.data.object.id }}",
+            "Customer Email": "={{ $('pullPaymetnInfo').item.json.data.object.customer_details.email }}",
+            "Quantity": "={{ $json.data[0].quantity }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Item",
+              "displayName": "Item",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Quantity",
+              "displayName": "Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Currency",
+              "displayName": "Currency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Session ID",
+              "displayName": "Session ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        32,
+        112
+      ],
+      "id": "8f73f526-0316-48e5-b125-7cc46e6f6228",
+      "name": "addOrderToGoogleSheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "JFF3isJ4wLDqLNhE",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "SomeCompany@work.com",
+        "toEmail": "={{ $('pullPaymetnInfo').item.json.data.object.customer_details.email }}",
+        "subject": "Unexpected Error",
+        "emailFormat": "text",
+        "text": "Something unexpected happened. Please check whether the payment was successful, and contact support for help.",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -176,
+        320
+      ],
+      "id": "2bbad607-0ee4-4c0f-9c2e-0e919584aa36",
+      "name": "sendANoticeToCustomer",
+      "webhookId": "c1905c0d-df39-4fb2-a01c-8b831d528447",
+      "retryOnFail": true,
+      "executeOnce": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "smtp": {
+          "id": "incshl864HAiB7G5",
+          "name": "SMTP account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "fromEmail": "mohamedpro3344@gmail.com",
+        "toEmail": "={{ $json['Customer Email'] }}",
+        "subject": "SomeCompany Invoice",
+        "html": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<title>Invoice</title>\n</head>\n<body style=\"margin:0; padding:0; background-color:#f4f5f7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;\">\n  <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#f4f5f7; padding:32px 0;\">\n    <tr>\n      <td align=\"center\">\n        <table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.08);\">\n\n          <!-- Header -->\n          <tr>\n            <td style=\"background-color:#0a0a0a; padding:28px 40px;\">\n              <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                <tr>\n                  <td style=\"color:#ffffff; font-size:20px; font-weight:600; letter-spacing:0.5px;\">\n                    SomeCompany\n                  </td>\n                  <td align=\"right\" style=\"color:#9ca3af; font-size:13px;\">\n                    Invoice\n                  </td>\n                </tr>\n              </table>\n            </td>\n          </tr>\n\n          <!-- Confirmation banner -->\n          <tr>\n            <td style=\"padding:32px 40px 0 40px;\">\n              <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#ecfdf5; border-radius:8px; border:1px solid #a7f3d0;\">\n                <tr>\n                  <td style=\"padding:16px 20px; color:#065f46; font-size:14px; font-weight:500;\">\n                    ✓ Payment received — thank you for your order\n                  </td>\n                </tr>\n              </table>\n            </td>\n          </tr>\n\n          <!-- Greeting -->\n          <tr>\n            <td style=\"padding:28px 40px 0 40px; color:#111827; font-size:15px; line-height:1.6;\">\n              Hi {{ $json['Customer Name'] }},\n              <br><br>\n              We've confirmed your payment. Here's a summary of your order.\n            </td>\n          </tr>\n\n          <!-- Order details table -->\n          <tr>\n            <td style=\"padding:24px 40px 0 40px;\">\n              <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-top:1px solid #e5e7eb;\">\n                <tr>\n                  <td colspan=\"2\" style=\"padding:16px 0 8px 0; color:#6b7280; font-size:12px; text-transform:uppercase; letter-spacing:0.5px;\">\n                    Order details\n                  </td>\n                </tr>\n                <tr>\n                  <td style=\"padding:6px 0; color:#374151; font-size:14px;\">Item</td>\n                  <td align=\"right\" style=\"padding:6px 0; color:#111827; font-size:14px; font-weight:500;\">{{ $json['Item'] }}</td>\n                </tr>\n                <tr>\n                  <td style=\"padding:6px 0; color:#374151; font-size:14px;\">Quantity</td>\n                  <td align=\"right\" style=\"padding:6px 0; color:#111827; font-size:14px; font-weight:500;\">{{ $json['Quantity'] }}</td>\n                </tr>\n                <tr>\n                  <td style=\"padding:6px 0; color:#374151; font-size:14px;\">Order ID</td>\n                  <td align=\"right\" style=\"padding:6px 0; color:#6b7280; font-size:13px; font-family: monospace;\">{{ $json['Session ID'] }}</td>\n                </tr>\n                <tr>\n                  <td style=\"padding:6px 0; color:#374151; font-size:14px;\">Date</td>\n                  <td align=\"right\" style=\"padding:6px 0; color:#111827; font-size:14px;\">{{ $json['Date'] }}</td>\n                </tr>\n              </table>\n            </td>\n          </tr>\n\n          <!-- Total -->\n          <tr>\n            <td style=\"padding:20px 40px 0 40px;\">\n              <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-top:1px solid #e5e7eb; padding-top:16px;\">\n                <tr>\n                  <td style=\"padding:16px 0 0 0; color:#111827; font-size:16px; font-weight:600;\">Total paid</td>\n                  <td align=\"right\" style=\"padding:16px 0 0 0; color:#111827; font-size:20px; font-weight:700;\">{{ $json['Amount'] }} {{ $json['Currency'].toUpperCase() }}</td>\n                </tr>\n              </table>\n            </td>\n          </tr>\n\n          <!-- Footer -->\n          <tr>\n            <td style=\"padding:36px 40px 32px 40px;\">\n              <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-top:1px solid #e5e7eb; padding-top:20px;\">\n                <tr>\n                  <td style=\"color:#9ca3af; font-size:12px; line-height:1.6;\">\n                    Questions about your order? Just reply to this email and we'll help you out.\n                    <br><br>\n                    SomeCompany · This is an automated confirmation\n                  </td>\n                </tr>\n              </table>\n            </td>\n          </tr>\n\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        256,
+        112
+      ],
+      "id": "61d75c15-cc68-4cb4-9c0c-65604974265d",
+      "name": "sendInvoice",
+      "webhookId": "9c271bb9-24a8-42ba-87f2-428313a5172f",
+      "credentials": {
+        "smtp": {
+          "id": "incshl864HAiB7G5",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BQEKUF338",
+          "mode": "list",
+          "cachedResultName": "errors"
+        },
+        "text": "=Something unexpected had happened, please notify the developer and contact the customer for help, Customer Name: {{ $('pullPaymetnInfo').item.json.data.object.customer_details.name }}, Customer Email: {{ $('pullPaymetnInfo').item.json.data.object.customer_details.email }}, Order ID: {{ $('pullPaymetnInfo').item.json.data.object.id }}. An Email has been successfully sent to the customer and they were notified.",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        16,
+        304
+      ],
+      "id": "910b1565-7c2c-402e-aab3-03c5a5bcf704",
+      "name": "notifyStaff(emailSuccess)",
+      "webhookId": "cebceee9-d7bb-47eb-a201-413825f1052f",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "dHN1htIbXXeRbAAd",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BQEKUF338",
+          "mode": "list",
+          "cachedResultName": "errors"
+        },
+        "text": "=Something unexpected had happened, please notify the developer and contact the customer for help, Customer Name: {{ $('pullPaymetnInfo').item.json.data.object.customer_details.name }}, Customer Email: {{ $('pullPaymetnInfo').item.json.data.object.customer_details.email }}, Order ID: {{ $('pullPaymetnInfo').item.json.data.object.id }}. An Email failed to be sent to customer, please contact them as soon as possible as them might not know something wrong had happened",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        16,
+        464
+      ],
+      "id": "57407b36-26f9-4b14-836c-410da93b1979",
+      "name": "notifyStaff(emailFail)",
+      "webhookId": "cebceee9-d7bb-47eb-a201-413825f1052f",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "dHN1htIbXXeRbAAd",
+          "name": "Slack account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "pullPaymetnInfo": {
+      "main": [
+        [
+          {
+            "node": "checkPaymentStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checkPaymentStatus": {
+      "main": [
+        [
+          {
+            "node": "getOrderDetails",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "sendANoticeToCustomer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getOrderDetails": {
+      "main": [
+        [
+          {
+            "node": "addOrderToGoogleSheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sendANoticeToCustomer": {
+      "main": [
+        [
+          {
+            "node": "notifyStaff(emailSuccess)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "notifyStaff(emailFail)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "addOrderToGoogleSheet": {
+      "main": [
+        [
+          {
+            "node": "sendInvoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d62ab8f1-7172-4f6f-9db3-5065c4693489",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "17d5bd0dcc925347b3d9e097fd617c44cfcfadf838e14af10d197da76c909542"
+  },
+  "nodeGroups": [],
+  "id": "BAKlNjWdw7R0tXGI",
+  "tags": []
+}
