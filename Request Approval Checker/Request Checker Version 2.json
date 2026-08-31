@@ -1,0 +1,698 @@
+{
+  "name": "Request Checker Version 2",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "dd4d142c-d46a-410c-9019-470c9dc980a2",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -3696,
+        944
+      ],
+      "id": "207db086-58bd-4004-b1e6-f10e6677a512",
+      "name": "Webhook",
+      "webhookId": "dd4d142c-d46a-410c-9019-470c9dc980a2"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "user": {
+          "__rl": true,
+          "value": "U0BP497A2SD",
+          "mode": "list",
+          "cachedResultName": "mohamedalaah91"
+        },
+        "message": "={{ $json.requesterName }} requested a purchase of an item with the description of \"{{ $json.itemDescription }}\" for {{ $json.cost }}$",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        -3040,
+        944
+      ],
+      "id": "d29cb02f-7b8e-44fe-b08c-c98e0b87d1bc",
+      "name": "firstApprovalRequest",
+      "webhookId": "b9ae3955-bf8b-4d38-8008-d4fc5250d97d",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "dHN1htIbXXeRbAAd",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body.requests",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -3456,
+        944
+      ],
+      "id": "c9a18e71-7e1a-404a-a31e-8312d4de37a0",
+      "name": "splitOut"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "user": {
+          "__rl": true,
+          "value": "U0BP497A2SD",
+          "mode": "list",
+          "cachedResultName": "mohamedalaah91"
+        },
+        "message": "={{ $json.requesterName }} requested a purchase of an item with the description of \"{{ $json.itemDescription }}\" for {{ $json.cost }}$",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        -1760,
+        960
+      ],
+      "id": "3a701e44-1eb0-487a-9c36-b51f7f584a0b",
+      "name": "secondApprovalRequest",
+      "webhookId": "20eaa0fe-97fc-4f7e-a0f2-a0e515290859",
+      "alwaysOutputData": false,
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "dHN1htIbXXeRbAAd",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BQEKUF338",
+          "mode": "list",
+          "cachedResultName": "errors"
+        },
+        "text": "Something went wrong with the approval process! Check the nodes or your credentials!",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        -1760,
+        1200
+      ],
+      "id": "4b0b8bba-0f19-46a9-acdc-530292a9e195",
+      "name": "sendNotice",
+      "webhookId": "4ff33b07-7671-4ddf-9e99-dfd907e7c7f0",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "dHN1htIbXXeRbAAd",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -384,
+        976
+      ],
+      "id": "5304bcb3-a403-45af-aec2-dd497aab20fd",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -688,
+        976
+      ],
+      "id": "d2b799d8-bc5e-4edd-ab72-6374079b9ba0",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BQEKUF338",
+          "mode": "list",
+          "cachedResultName": "errors"
+        },
+        "text": "Something went wrong with the approval process! Check the nodes or your credentials!",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        -800,
+        1264
+      ],
+      "id": "2743e733-b88d-4aff-8e31-9433854f423e",
+      "name": "sendNotice2",
+      "webhookId": "4c17d2b8-1e16-419e-9b12-1386b0c75b6f",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "dHN1htIbXXeRbAAd",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "87a0cc8b-d6ce-4826-bec6-f343251b4af7",
+              "name": "firstApprovalCheck",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "6bc7b365-9540-4f56-b763-85d6ac278e87",
+              "name": "secondApprovalCheck",
+              "value": false,
+              "type": "boolean"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -3280,
+        944
+      ],
+      "id": "b6fb9684-99c5-45a1-855d-b7e898264b1e",
+      "name": "setApprovalChecks"
+    },
+    {
+      "parameters": {
+        "jsCode": "const order = $('setApprovalChecks').first().json\n\nconst remainingOrders = $('setApprovalChecks').all().slice(1)\n\n$('setApprovalChecks').first().json.firstApprovalCheck = true\n\n$('setApprovalChecks').first().json.firstApprove = $input.first().json.data.approved\n\nreturn [\n   \n  {\n  json: order\n  },\n  ...remainingOrders\n       \n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2720,
+        944
+      ],
+      "id": "8d7c1f85-f342-4a14-9d8b-f5e358e46255",
+      "name": "applyApprovalState"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1111111-1111-1111-1111-111111111111",
+              "name": "status",
+              "value": "disapproved_stage1",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -1760,
+        688
+      ],
+      "id": "ded43796-4590-40d9-bd9e-a9a3eb4683f9",
+      "name": "setDisapproval"
+    },
+    {
+      "parameters": {
+        "jsCode": "const order = $('setApprovalChecks').first().json\n\nconst remainingOrders = $('setApprovalChecks').all().slice(1)\n\n$('setApprovalChecks').first().json.secondApprovalCheck = true\n\n$('setApprovalChecks').first().json.secondApprove = $input.first().json.data.approved\n\nreturn [\n   \n  {\n  json: order\n  },\n  ...remainingOrders\n       \n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1488,
+        960
+      ],
+      "id": "147be061-b4d3-4355-8a04-d1fd4cfa2111",
+      "name": "applySecondApprovalState"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a2222222-2222-2222-2222-222222222222",
+              "name": "status",
+              "value": "disapproved_stage2",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -848,
+        736
+      ],
+      "id": "68f73e49-d6c7-4382-8e6d-f993c9047617",
+      "name": "setDisapproval2"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "s2-r0",
+                    "leftValue": "={{ $json.secondApprovalCheck }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "remainingOrders"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "s2-r1",
+                    "leftValue": "={{ $json.secondApprove }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "disapproved"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "s2-r2",
+                    "leftValue": "={{ $json.secondApprove }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "approved"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "s2-r3",
+                    "leftValue": "={{ $json.secondApprove }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "notExists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "nonExistant"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -1184,
+        928
+      ],
+      "id": "9f655eeb-f451-4096-81fc-f16401817d38",
+      "name": "checkSecondApproval"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "54ae54db-2238-4785-a634-10bc0d995f0e",
+                    "leftValue": "={{ $json.firstApprovalCheck }}",
+                    "rightValue": false,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "remainingOrders"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "78938cad-de6d-43f0-9580-9ac4323be435",
+                    "leftValue": "={{ $json.firstApprove }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "disapproved"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.firstApprove }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "a59d7193-314e-4fe4-a753-5d25c7495d31"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "approved"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "13d247f6-4585-4ba9-94db-925f9ba24280",
+                    "leftValue": "={{ $json.firstApprove }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "notExists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "nonExistant"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -2256,
+        912
+      ],
+      "id": "72ffa65f-f816-458d-8c58-6f9417224e2b",
+      "name": "checkFirstApproval1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "splitOut",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "firstApprovalRequest": {
+      "main": [
+        [
+          {
+            "node": "applyApprovalState",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "splitOut": {
+      "main": [
+        [
+          {
+            "node": "setApprovalChecks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "secondApprovalRequest": {
+      "main": [
+        [
+          {
+            "node": "applySecondApprovalState",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setApprovalChecks": {
+      "main": [
+        [
+          {
+            "node": "firstApprovalRequest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "applyApprovalState": {
+      "main": [
+        [
+          {
+            "node": "checkFirstApproval1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "applySecondApprovalState": {
+      "main": [
+        [
+          {
+            "node": "checkSecondApproval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checkSecondApproval": {
+      "main": [
+        [
+          {
+            "node": "secondApprovalRequest",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "setDisapproval2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "sendNotice2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checkFirstApproval1": {
+      "main": [
+        [
+          {
+            "node": "firstApprovalRequest",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "setDisapproval",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "secondApprovalRequest",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "sendNotice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f9444ad7-2454-4ac5-9d45-1c6ecd1a6d2f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "17d5bd0dcc925347b3d9e097fd617c44cfcfadf838e14af10d197da76c909542"
+  },
+  "nodeGroups": [],
+  "id": "FuQ7KyOKSwHZsV2A",
+  "tags": []
+}
