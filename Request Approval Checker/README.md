@@ -1,13 +1,15 @@
-# Project Summary — Telegram Chat Bot
+# Project Summary — Request Checker
 
-**The problem:** This solves a convenience problem more than a business one, so you can focus more on running the business and less on daily admin. Sometimes you don't want to open a website and update information, especially when there's a lot of it. Or you don't want to switch between three different apps just to get one thing done. Having someone handle that for you quickly, and understanding you by voice, saves a lot of time!
+!Screenshot From 2026-08-31 09-43-17-modified.png
 
-**The solution I provide:** This workflow allows a personal assistant “Jackie” to manage everything you find boring, summarize emails, manage the calendar and even make new tasks for you. Jackie understands both voice and text. You know the best part? This can be expanded even if you don’t understand n8n. Just go the tools section in the AI Agent node and add a new tool, fill in the required fields and you are done.
+**The problem:** Requests that need approval from more than one person often get lost in email threads, forgotten, or approved out of order with no clear record of who signed off and when.
 
-**The Logic Behind:** I use a Telegram node to check for a new message, and then check whether the message is text or voice. If text, it will be handed immediately to the AI agent. If the message is a voice message, it will be handed to an AI Transcription Tool using an HTTP Request, and then handed to the AI agent. From there, the AI agent will fulfill your request based on that message.
+**The solution I provide:** An automated two-level approval system that checks for approval from two people and routes the request accordingly. It notifies on error, and it checks the first person's approval before the second, disapproving immediately if the first rejects it, to save resources.
 
-**What I learned from this project:** I learned how to manage binary data and transform it, I learned how to use AI Agents and link tools to them (Even external ones!), I learned how to properly use HTTP Requests to integrate what isn’t available in n8n out of the box
+**The Logic Behind:** The workflow triggers on a new request and sends it to the first approver. If they reject it, the workflow stops immediately and the request is marked disapproved, no need to bother the second approver. If they approve, the request moves to the second approver, and the final outcome is recorded based on their decision. A cleanup step runs after each response to prevent stale or duplicate entries from corrupting the request's status.
 
-Try it Yourself! All workflows can be accessed in my github page.
+**What I learned from this project:** I learned how to design workflows around early-exit logic instead of checking every condition regardless of outcome. I also learned how important cleanup steps are for data integrity when a workflow can be triggered multiple times for the same request.
 
-You'll need to set up any missing credentials for this to work. If self-hosting, the instance needs a public IP/URL. n8n Cloud works out of the box with no hosting required.”
+Try it Yourself! All workflows can be accessed in my GitHub page.
+
+You'll need to set up any missing credentials for this to work. If self-hosting, the instance needs a public IP/URL. n8n Cloud works out of the box with no hosting required.
