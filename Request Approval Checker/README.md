@@ -1,7 +1,5 @@
 # Project Summary — Request Checker
 
-!Screenshot From 2026-08-31 09-43-17-modified.png
-
 **The problem:** Requests that need approval from more than one person often get lost in email threads, forgotten, or approved out of order with no clear record of who signed off and when.
 
 **The solution I provide:** An automated two-level approval system that checks for approval from two people and routes the request accordingly. It notifies on error, and it checks the first person's approval before the second, disapproving immediately if the first rejects it, to save resources.
