@@ -1,0 +1,616 @@
+{
+  "name": "Telegram Personal Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b333d1ef-1ef0-4f6e-8d49-73259a13020e",
+              "leftValue": "={{ $json.message.voice }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -224,
+        -160
+      ],
+      "id": "3887a405-0757-43c5-9bce-eadf99891849",
+      "name": "Check Message Type (Voice Text)"
+    },
+    {
+      "parameters": {
+        "content": "This is the voice branch",
+        "height": 80,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        128,
+        -480
+      ],
+      "id": "4059e3ab-2618-4b32-b493-ee86d6951ae8",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/getFile?file_id={{ $json.message.voice.file_id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        128,
+        -368
+      ],
+      "id": "fd419503-13aa-4c22-9ba3-d811535297a4",
+      "name": "Get Voice Message Path"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/file/bot{{ $env.TELEGRAM_BOT_TOKEN }}/{{ $json.result.file_path }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        320,
+        -368
+      ],
+      "id": "12bacb69-57fd-4ccb-8065-f324e2b68f24",
+      "name": "Download Message"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/audio/transcriptions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "groqApi",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "model",
+              "value": "whisper-large-v3"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        688,
+        -368
+      ],
+      "id": "250a1a1c-c7e4-4f41-b639-1b801d7c8ec6",
+      "name": "Transcribe",
+      "credentials": {
+        "groqApi": {
+          "id": "B0gJ12GAOob5uMCa",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text || $json.message.text}}",
+        "options": {
+          "systemMessage": "You are a personal AI assistant named Jackie that operates through Telegram. Jackie can summarize unread emails, check calendar events, manage Google Tasks, and handle both voice and text interactions. The assistant provides a comprehensive digital life management solution accessible via Telegram messaging.\n\nAct like a coworker, straight, serious and Helpful!\n\nWhen making custom api calls, ALWAYS make sure they are correctz\n\nDon't keep repeating yourself, if something doesn't work. try to trace with the user.\n\nRemember, you are not instructing the user, you are working WITH the user.\n\nBefore doing an HTTP Request, ALWAYS check what are the required parameters and always fill all of them\n\nAfter 19 Failed Tries, Stop and notify the user of what's happening\n\nIf you make an api call that requires a specific formatting, always rely on that rathar than the user's formatting",
+          "maxIterations": 20
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        912,
+        -160
+      ],
+      "id": "fbc4403c-e493-44a2-a153-3488462517db",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen3-max",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAlibabaCloud",
+      "typeVersion": 1,
+      "position": [
+        640,
+        32
+      ],
+      "id": "bae1aeba-8fd4-4aa1-8b35-c79dd26fda2d",
+      "name": "Qwen Cloud Chat Model",
+      "credentials": {
+        "alibabaCloudApi": {
+          "id": "h0WuYIYntSlVfOip",
+          "name": "Qwen Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "88b74235-03c8-4acf-977f-2235e8489a18",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        128,
+        -144
+      ],
+      "id": "9f6a561a-97be-4b6b-810b-d433e05b2454",
+      "name": "Check Text Type"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        416,
+        -16
+      ],
+      "id": "7e40364e-2656-4dac-89a3-36f63905506a",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Get Messages from TL').item.json.message.chat.id }}",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        752,
+        48
+      ],
+      "id": "ef9fd297-5be3-4c7d-87e6-6f8cba7f8a9f",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Get Messages from TL').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1184,
+        -160
+      ],
+      "id": "9eaa911c-88fe-47c3-9ed1-a3b00b7c7c79",
+      "name": "Send a text message",
+      "webhookId": "94663db9-4f09-42ba-9df4-85c4513ef0ab",
+      "credentials": {
+        "telegramApi": {
+          "id": "t7aIqR2mib2To1ng",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -768,
+        -144
+      ],
+      "id": "563b210b-c058-464e-ae66-8ae0e5240bf5",
+      "name": "Get Messages from TL",
+      "webhookId": "5c6aa209-9a11-4165-bad5-6d30fe181a33",
+      "credentials": {
+        "telegramApi": {
+          "id": "t7aIqR2mib2To1ng",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item;\nitem.binary.data.fileName = 'audio.ogg';\nitem.binary.data.mimeType = 'audio/ogg';\nreturn item;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        512,
+        -368
+      ],
+      "id": "02ee4e0d-c0f6-43a1-a3ba-4f96ed09c354",
+      "name": "Convert OGA to OGG"
+    },
+    {
+      "parameters": {
+        "content": "This is the text branch",
+        "height": 80,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        400,
+        -208
+      ],
+      "id": "753513f7-6da4-43cd-b82a-f0d48560e74f",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        48
+      ],
+      "id": "31db2dff-3596-484d-ae3c-689f878c7d18",
+      "name": "Get many messages in Gmail",
+      "webhookId": "d02f4237-539a-49ac-a59e-a817535fe806",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "8MFtzYw1isJbBg5n",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Makes api calls for google calendar",
+        "method": "={{ $fromAI('method', 'HTTP method: GET, POST, PUT, or DELETE', 'string') }}",
+        "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('URL', ``, 'string') }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleCalendarOAuth2Api",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "jsonQuery": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('JSON', ``, 'json') }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('JSON', ``, 'json') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        1056,
+        64
+      ],
+      "id": "0d945df2-2358-4d86-80a9-b38031d07ea9",
+      "name": "Google Calender",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "eQlw2aWeFSXW5HPf",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Makes api calls for google tasks",
+        "method": "={{ $fromAI('method', 'HTTP method: GET, POST, PUT, or DELETE', 'string') }}",
+        "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('URL', ``, 'string') }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleTasksOAuth2Api",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "jsonQuery": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('JSON', ``, 'json') }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('JSON', ``, 'json') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        896,
+        64
+      ],
+      "id": "d76a1032-3b53-488d-b3a5-6ba4dec96461",
+      "name": "Google Tasks",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "eQlw2aWeFSXW5HPf",
+          "name": "Google Calendar account"
+        },
+        "googleTasksOAuth2Api": {
+          "id": "P2623eLwA51rwSHy",
+          "name": "Google Tasks account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        48
+      ],
+      "id": "28cf82a7-bcbf-488e-8ae2-7365e6a1e4a9",
+      "name": "Stop"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6c504ade-5a27-42ee-aecf-326c5bd115b1",
+              "leftValue": "={{ $json.message.from.id }}",
+              "rightValue": 6113582588,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -544,
+        -144
+      ],
+      "id": "bed7289a-4683-4914-bbab-3dab80b4e1ca",
+      "name": "Check If The User Is Authorized"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Check Message Type (Voice Text)": {
+      "main": [
+        [
+          {
+            "node": "Get Voice Message Path",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Text Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Voice Message Path": {
+      "main": [
+        [
+          {
+            "node": "Download Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Message": {
+      "main": [
+        [
+          {
+            "node": "Convert OGA to OGG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qwen Cloud Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Text Type": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Messages from TL": {
+      "main": [
+        [
+          {
+            "node": "Check If The User Is Authorized",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert OGA to OGG": {
+      "main": [
+        [
+          {
+            "node": "Transcribe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many messages in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calender": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Tasks": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If The User Is Authorized": {
+      "main": [
+        [
+          {
+            "node": "Check Message Type (Voice Text)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f1dc624d-3530-4403-9fd0-000224608bda",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "17d5bd0dcc925347b3d9e097fd617c44cfcfadf838e14af10d197da76c909542"
+  },
+  "nodeGroups": [],
+  "id": "u204LtiIvQ2NcljH",
+  "tags": []
+}
