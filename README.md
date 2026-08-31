@@ -5,4 +5,4 @@ I started earlier in **July**, and I worked on making automations and figuring o
 
 I make automations **with** and **without** “*integrated AI”* and I can **integrate** my automations into websites if needed
 
-Email: mohamedalaah91@gmail.com
+Email: mivlin.official@gmail.com
